@@ -859,19 +859,19 @@ func getECHList() ([]byte, error) {
 }
 
 func buildTLSConfigWithECH(serverName string, echList []byte) (*tls.Config, error) {
-	roots, err := x509.SystemCertPool()
-	if err != nil {
-		return nil, err
-	}
-	return &tls.Config{
-		MinVersion:                     tls.VersionTLS13,
-		ServerName:                     serverName,
-		EncryptedClientHelloConfigList: echList,
-		EncryptedClientHelloRejectionVerify: func(cs tls.ConnectionState) error {
-			return errors.New("服务器拒绝 ECH")
-		},
-		RootCAs: roots,
-	}, nil
+    roots, err := x509.SystemCertPool()
+    if err != nil {
+        return nil, err
+    }
+    return &tls.Config{
+        MinVersion: tls.VersionTLS13,
+        ServerName: serverName,
+        // EncryptedClientHelloConfigList: echList,   // 注释掉这一行
+        // EncryptedClientHelloRejectionVerify: func(cs tls.ConnectionState) error {
+        //     return errors.New("server rejected ech")
+        // },
+        RootCAs: roots,
+    }, nil
 }
 
 func buildStandardTLSConfig(serverName string) (*tls.Config, error) {
