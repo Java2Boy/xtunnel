@@ -14,7 +14,7 @@ COPY x-tunnel.go .
 
 # 修改 fallback 默认值为 true（禁用 ECH），解决编译错误
 RUN sed -i 's/flag.BoolVar(&fallback, "fallback", false,/flag.BoolVar(&fallback, "fallback", true,/g' x-tunnel.go && \
-    go mod init xtunnel 2>/dev/null || true && \
+RUN go mod init xtunnel 2>/dev/null || true && \
     go get github.com/gorilla/websocket github.com/xtaci/smux github.com/google/uuid && \
     go build -ldflags="-s -w" -o xtunnel x-tunnel.go && \
     upx --best --lzma xtunnel
