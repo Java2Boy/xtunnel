@@ -10,11 +10,11 @@ ENV GO111MODULE=on \
 
 WORKDIR /build
 
-# 复制源码（如果使用 go.mod 则一并复制，这里假设只有一个 x-tunnel.go）
 COPY x-tunnel.go .
 
-# 初始化模块并下载依赖
-RUN go mod init xtunnel 2>/dev/null || true && \
+# 修改 fallback 默认值为 true（禁用 ECH），解决编译错误
+RUN sed -i 's/flag.BoolVar(&fallback, "fallback", false,/flag.BoolVar(&fallback, "fallback", true,/g' x-tunnel.go && \
+    go mod init xtunnel 2>/dev/null || true && \
     go get github.com/gorilla/websocket github.com/xtaci/smux github.com/google/uuid && \
     go build -ldflags="-s -w" -o xtunnel x-tunnel.go && \
     upx --best --lzma xtunnel
