@@ -9,6 +9,21 @@ RUN go mod init xtunnel && \
 
 # 运行阶段
 FROM alpine:latest
-RUN apk add --no-cache ca-certificates
+RUN apk add --no-cache ca-certificates bash curl coreutils netcat-openbsd
+
+# 下载 cloudflared
+ADD https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64 /usr/local/bin/cloudflared
+RUN chmod +x /usr/local/bin/cloudflared
+
 COPY --from=builder /app/xtunnel /usr/local/bin/xtunnel
-ENTRYPOINT ["/usr/local/bin/xtunnel"]
+RUN chmod +x /usr/local/bin/xtunnel
+
+COPY entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
+ENV XTUNNEL_TOKEN=""
+ENV EDGE_IP_VERSION="4"
+
+EXPOSE 8080
+
+CMD ["/entrypoint.sh"]
