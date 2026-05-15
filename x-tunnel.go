@@ -109,7 +109,7 @@ func init() {
 	flag.StringVar(&cidrs, "cidr", "0.0.0.0/0,::/0", "允许的来源 IP 范围 (CIDR),多个范围用逗号分隔")
 	flag.StringVar(&dnsServer, "dns", "https://doh.pub/dns-query", "查询 ECH 公钥所用的 DNS 服务器 (支持 DoH 或 UDP，仅 wss 模式生效)")
 	flag.StringVar(&echDomain, "ech", "cloudflare-ech.com", "用于查询 ECH 公钥的域名（仅 wss 模式生效）")
-	flag.BoolVar(&fallback, "fallback", true, "是否禁用 ECH 并回落到普通 TLS 1.3（仅 wss 模式生效，默认 false）")
+	flag.BoolVar(&fallback, "fallback", false, "是否禁用 ECH 并回落到普通 TLS 1.3（仅 wss 模式生效，默认 false）")
 	flag.IntVar(&connectionNum, "n", 3, "每个IP建立的WebSocket连接数量")
 	flag.StringVar(&ips, "ips", "", "服务端解析目标地址的IP偏好 (仅客户端有效)\n 4: 仅IPv4\n 6: 仅IPv6\n 4,6: IPv4优先\n 6,4: IPv6优先")
 }
@@ -883,7 +883,7 @@ func buildStandardTLSConfig(serverName string) (*tls.Config, error) {
 		MinVersion:         tls.VersionTLS13,
 		ServerName:         serverName,
 		RootCAs:            roots,
-		InsecureSkipVerify: insecure, // 修正：fallback/标准TLS也要支持 -insecure
+		InsecureSkipVerify: insecure,
 	}, nil
 }
 
