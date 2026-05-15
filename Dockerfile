@@ -24,6 +24,7 @@ FROM alpine:3.19
 
 # 安装运行时依赖（cloudflared 需要 ca-certificates）
 RUN apk add --no-cache ca-certificates bash curl
+RUN apk add --no-cache netcat-openbsd
 
 # 下载 cloudflared（官方最新版，静态链接）
 ADD https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64 /usr/local/bin/cloudflared
