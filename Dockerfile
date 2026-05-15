@@ -1,29 +1,18 @@
-# 构建阶段
-FROM golang:1.21-alpine AS builder
-RUN apk add --no-cache git
-WORKDIR /app
-COPY x-tunnel.go .
-RUN go mod init xtunnel && \
-    go get github.com/gorilla/websocket github.com/xtaci/smux github.com/google/uuid && \
-    go build -o xtunnel x-tunnel.go
-
-# 运行阶段
+# 使用 Alpine 作为基础镜像（体积小）
 FROM alpine:latest
-RUN apk add --no-cache ca-certificates bash curl coreutils netcat-openbsd
 
-# 下载 cloudflared
-ADD https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64 /usr/local/bin/cloudflared
-RUN chmod +x /usr/local/bin/cloudflared
+# 安装运行时依赖：bash, curl, screen, coreutils, netcat-openbsd, ca-certificates
+RUN apk add --no-cache bash curl screen coreutils netcat-openbsd ca-certificates
 
-COPY --from=builder /app/xtunnel /usr/local/bin/xtunnel
-RUN chmod +x /usr/local/bin/xtunnel
+# 创建工作目录
+WORKDIR /app
 
+# 复制入口脚本
 COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 
-ENV XTUNNEL_TOKEN=""
-ENV EDGE_IP_VERSION="4"
-
+# 暴露健康检查端口（apply.build 要求）
 EXPOSE 8080
 
+# 容器启动命令
 CMD ["/entrypoint.sh"]
